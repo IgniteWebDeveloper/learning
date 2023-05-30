@@ -8,16 +8,17 @@ import Bin from './Bin'
 const App = () => {
   const navigate = useNavigate()
   const [blogs, setblog] = useState([])
+  const [bin, setbin] = useState([])
   const [edittedBlog, setedittedBlog] = useState({})
   useEffect(() => {
     if (JSON.parse(sessionStorage.getItem('blog'))) {
       setblog(JSON.parse(sessionStorage.getItem('blog')))
     }
-    console.log(edittedBlog)
   }, [])
 
   const addNewBlog = (e) => {
     e.preventDefault()
+    console.log(blogs)
     const blog = {
       id: blogs.length + 1,
       title: e.target.blogTitle.value,
@@ -36,7 +37,7 @@ const App = () => {
   const onEditBlogClick = (index) => {
     const blog = blogs.find((elem, i) => i === index)
     setedittedBlog(blog)
-    return redirect()
+    return redirect() 
   }
   const redirect = () => {
     console.log(edittedBlog)
@@ -49,6 +50,19 @@ const App = () => {
 
   }
 
+
+  const moveToBin = (id) => {
+    const binData = blogs.filter(e => e.id === id)
+    sessionStorage.setItem('binBlogs', JSON.stringify(binData))
+    console.log(binData, id)
+    const temp  = blogs.filter(e => e.id !== id)
+    sessionStorage.setItem('blog', JSON.stringify(temp))
+    setblog(temp)
+    setbin(binData)
+  }
+
+  console.log("in edit",edittedBlog)
+
   return (
     <div>
       <a href="/">Home</a>&nbsp;&nbsp;
@@ -56,9 +70,9 @@ const App = () => {
       <a href="/edit-blog">Edit Blog</a>&nbsp;&nbsp;
       <a href="/bin">Bin</a>
       <Routes>
-        <Route path={'/'} element={<Home blogs={blogs} onEditBlogClick={onEditBlogClick}/>} />
-        <Route path={'/new-blog'} element={<NewBlog blog={blogs} setblog={setblog} addNewBlog={addNewBlog} />} />
-        <Route path={'/edit-blog'} element={<NewBlog blog={edittedBlog} updateBlog={updateBlog} />} />
+        <Route path={'/'} element={<Home blogs={blogs} onEditBlogClick={onEditBlogClick} moveToBin={moveToBin}/>} />
+        <Route path={'/new-blog'} element={<NewBlog blogs={blogs || []} setblog={setblog} addNewBlog={addNewBlog} />} />
+        <Route path={'/edit-blog'} element={<NewBlog blogs={[]} edittedBlog={edittedBlog} updateBlog={updateBlog} />} />
         <Route path={'/bin'} element={<Bin />} />
       </Routes>
     </div>
